@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.eandr.bazzing.R;
+import com.eandr.bazzing.verification.PhoneNumberInputActivity;
 import com.eandr.bazzing.verification.PhoneVerificationCallBack;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.hbb20.CountryCodePicker;
@@ -90,6 +91,7 @@ public class PhoneNumberInputFragment extends Fragment {
                 getActivity(),      // Activity (for callback binding)
                 mCallbacks);        // OnVerificationStateChangedCallbacks
         //move to next fragment
+        ((PhoneNumberInputActivity)getActivity()).setViewPager(1);
 
     }
 

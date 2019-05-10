@@ -67,6 +67,7 @@ public class PhoneCodeVerificationFragment extends Fragment implements View.OnCl
         }else {
 
            mCallbacks.showVaryingDialog();
+           mCallbacks.signInWithUserCodeInput(verificationCode);
         }
     }
 }

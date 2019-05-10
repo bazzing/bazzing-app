@@ -23,6 +23,9 @@ import com.google.firebase.auth.PhoneAuthProvider;
 
 import java.io.Serializable;
 
+import br.com.joinersa.oooalertdialog.Animation;
+import br.com.joinersa.oooalertdialog.OoOAlertDialog;
+
 public class PhoneVerificationCallBack extends PhoneAuthProvider.OnVerificationStateChangedCallbacks
 implements Serializable {
 
@@ -83,10 +86,17 @@ implements Serializable {
                             //go to main activity
                             gotToMainActivity();
                         } else {
+                            dialogVerifying.dismiss();
                             // Sign in failed, display a message and update the UI
                             if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
                                 // The verification code entered was invalid show alert dialog
-
+                                new OoOAlertDialog.Builder(context)
+                                        .setTitle("Error")
+                                        .setMessage(task.getException().getMessage())
+                                        .setImage(R.drawable.error_triangle)
+                                        .setAnimation(Animation.POP)
+                                        .setPositiveButton("OK", null)
+                                        .build();
                             }
                         }
                     }
