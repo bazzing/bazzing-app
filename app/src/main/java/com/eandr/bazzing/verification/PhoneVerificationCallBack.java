@@ -1,31 +1,45 @@
 package com.eandr.bazzing.verification;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 
+import com.eandr.bazzing.MainActivity;
 import com.eandr.bazzing.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
 
-public class PhoneVerificationCallBack extends PhoneAuthProvider.OnVerificationStateChangedCallbacks {
+import java.io.Serializable;
+
+public class PhoneVerificationCallBack extends PhoneAuthProvider.OnVerificationStateChangedCallbacks
+implements Serializable {
+
 
     private String phoneVeficationId;
-    private final Context context;
+    private final Activity context;
     private AlertDialog dialogVerifying;
     private PhoneAuthProvider.ForceResendingToken resendToken;
 
-    PhoneVerificationCallBack(Context context) {
+    public PhoneVerificationCallBack(Activity context) {
         this.context = context;
     }
 
     @Override
     public void onVerificationCompleted(PhoneAuthCredential phoneAuthCredential) {
-
         showVaryingDialog();
-        //signInWithPhoneAuthCredential(phoneAuthCredential);
+        signInWithPhoneAuthCredential(phoneAuthCredential);
 
     }
 
@@ -50,7 +64,43 @@ public class PhoneVerificationCallBack extends PhoneAuthProvider.OnVerificationS
     }
 
 
-    private void showVaryingDialog() {
+    public void signInWithUserCodeInput(String userCodeInput){
+
+        showVaryingDialog();
+        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(phoneVeficationId, userCodeInput);
+        signInWithPhoneAuthCredential(credential);
+
+    }
+
+    private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
+        FirebaseAuth.getInstance().signInWithCredential(credential)
+                .addOnCompleteListener(context, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            dialogVerifying.dismiss();
+                            //go to main activity
+                            gotToMainActivity();
+                        } else {
+                            // Sign in failed, display a message and update the UI
+                            if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
+                                // The verification code entered was invalid show alert dialog
+
+                            }
+                        }
+                    }
+                });
+    }
+
+    private void gotToMainActivity() {
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        context.startActivity(intent);
+    }
+
+
+    public void showVaryingDialog() {
         LayoutInflater inflater = LayoutInflater.from(context);
         View alertLayout= inflater.inflate(R.layout.processing_dialog,null);
         AlertDialog.Builder show = new AlertDialog.Builder(context);
