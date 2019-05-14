@@ -1,45 +1,52 @@
 package com.eandr.bazzing.verification;
 
 import android.os.Bundle;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 
 import com.eandr.bazzing.R;
-import com.eandr.bazzing.verification.adatpter.SectionStatePagerAdapter;
 import com.eandr.bazzing.verification.fragments.PhoneCodeVerificationFragment;
 import com.eandr.bazzing.verification.fragments.PhoneNumberInputFragment;
 
-public class PhoneNumberInputActivity extends AppCompatActivity {
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
-    public static final String CALLBACK_KEY = "phoneCallback";
+public class PhoneNumberInputActivity extends AppCompatActivity {
 
     private  PhoneVerificationCallBack phoneVerificationCallBack;
 
-    private  ViewPager viewPager;
+    public static final String INPUT_NUMBER_FRAGMENT_TAG = "inputNumberFragmentTag";
+    public static final String INPUT_CODE_FRAGMENT_TAG = "inputCodeFragmentTag";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_phone_number_input);
-
-        viewPager = findViewById(R.id.phone_verification_container);
+        setSupportActionBar(findViewById(R.id.activity_phone_number_toolbar));
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         phoneVerificationCallBack = new PhoneVerificationCallBack(this);
-        setUpViewPager();
+
+        if (savedInstanceState == null) {
+            Fragment newFragment = new PhoneNumberInputFragment();
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.add(R.id.phone_verification_container, newFragment, INPUT_NUMBER_FRAGMENT_TAG).commit();
+        }
 
     }
 
 
-    private void setUpViewPager(){
+    public void showSmsCode(String smsCode){
 
-        SectionStatePagerAdapter adapter = new SectionStatePagerAdapter(getSupportFragmentManager());
-        adapter.addFragment(PhoneNumberInputFragment.newInstance(phoneVerificationCallBack));
-        adapter.addFragment(PhoneCodeVerificationFragment.newInstance(phoneVerificationCallBack));
-        viewPager.setAdapter(adapter);
+        PhoneCodeVerificationFragment phoneCodeVerificationFragment = (PhoneCodeVerificationFragment)getSupportFragmentManager().findFragmentByTag(INPUT_CODE_FRAGMENT_TAG);
+        if (phoneCodeVerificationFragment != null && phoneCodeVerificationFragment.isVisible()) {
+            // add your code here
+            phoneCodeVerificationFragment.showSmsCode(smsCode);
+        }
+
     }
 
-    public void setViewPager(int fragmentNumber){
-        viewPager.setCurrentItem(fragmentNumber);
+    public PhoneVerificationCallBack getPhoneVerificationCallBack(){
+        return phoneVerificationCallBack;
     }
 
 }

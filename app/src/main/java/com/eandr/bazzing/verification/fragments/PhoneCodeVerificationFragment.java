@@ -1,10 +1,6 @@
 package com.eandr.bazzing.verification.fragments;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,12 +9,12 @@ import android.widget.Toast;
 
 import com.chaos.view.PinView;
 import com.eandr.bazzing.R;
+import com.eandr.bazzing.verification.PhoneNumberInputActivity;
 import com.eandr.bazzing.verification.PhoneVerificationCallBack;
-import com.google.api.Authentication;
-import com.google.firebase.auth.PhoneAuthCredential;
-import com.google.firebase.auth.PhoneAuthProvider;
 
-import static com.eandr.bazzing.verification.PhoneNumberInputActivity.CALLBACK_KEY;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 public class PhoneCodeVerificationFragment extends Fragment implements View.OnClickListener {
 
@@ -29,11 +25,10 @@ public class PhoneCodeVerificationFragment extends Fragment implements View.OnCl
 
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mCallbacks = (PhoneVerificationCallBack) savedInstanceState.getSerializable(CALLBACK_KEY);
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        mCallbacks = ((PhoneNumberInputActivity)getActivity()).getPhoneVerificationCallBack();
     }
-
 
     @Nullable
     @Override
@@ -49,15 +44,10 @@ public class PhoneCodeVerificationFragment extends Fragment implements View.OnCl
         return view;
     }
 
-    public static PhoneCodeVerificationFragment newInstance(PhoneVerificationCallBack phoneVerificationCallBack) {
-
-        Bundle args = new Bundle();
-        args.putSerializable(CALLBACK_KEY, phoneVerificationCallBack);
-
-        PhoneCodeVerificationFragment fragment = new PhoneCodeVerificationFragment();
-        fragment.setArguments(args);
-        return fragment;
+    public void showSmsCode(String smsCode){
+        verifyCodeET.setText(smsCode);
     }
+
 
     @Override
     public void onClick(View view) {
@@ -66,7 +56,7 @@ public class PhoneCodeVerificationFragment extends Fragment implements View.OnCl
             Toast.makeText(getActivity(),"Enter verification code",Toast.LENGTH_SHORT).show();
         }else {
 
-           mCallbacks.showVaryingDialog();
+           mCallbacks.showVerifyingDialog();
            mCallbacks.signInWithUserCodeInput(verificationCode);
         }
     }

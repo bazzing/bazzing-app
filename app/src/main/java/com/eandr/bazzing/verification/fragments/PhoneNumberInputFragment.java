@@ -1,32 +1,28 @@
 package com.eandr.bazzing.verification.fragments;
 
-import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.bestsoft32.tt_fancy_gif_dialog_lib.TTFancyGifDialog;
 import com.eandr.bazzing.R;
 import com.eandr.bazzing.verification.PhoneNumberInputActivity;
 import com.eandr.bazzing.verification.PhoneVerificationCallBack;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.hbb20.CountryCodePicker;
-import com.jakewharton.rxbinding2.view.RxView;
 
-import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 
-import br.com.joinersa.oooalertdialog.Animation;
-import br.com.joinersa.oooalertdialog.OoOAlertDialog;
-import io.reactivex.Observable;
-import io.reactivex.disposables.Disposable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
-import static com.eandr.bazzing.verification.PhoneNumberInputActivity.CALLBACK_KEY;
+import static com.eandr.bazzing.verification.PhoneNumberInputActivity.INPUT_CODE_FRAGMENT_TAG;
+
 
 public class PhoneNumberInputFragment extends Fragment {
 
@@ -34,16 +30,15 @@ public class PhoneNumberInputFragment extends Fragment {
     private CountryCodePicker countryCodePicker;
     private Button sendNumberBtn;
 
-    private Disposable disposable;
-
     private PhoneVerificationCallBack mCallbacks;
 
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mCallbacks = (PhoneVerificationCallBack) savedInstanceState.getSerializable(CALLBACK_KEY);
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        mCallbacks = ((PhoneNumberInputActivity) getActivity()).getPhoneVerificationCallBack();
     }
+
 
     @Nullable
     @Override
@@ -57,29 +52,30 @@ public class PhoneNumberInputFragment extends Fragment {
 
         countryCodePicker.registerCarrierNumberEditText(phoneNumberEditText);
 
-        disposable =  RxView.clicks(sendNumberBtn)
-                            .flatMap(o-> {
-                                        if (!countryCodePicker.isValidFullNumber()) {
-                                            return Observable.error(new IllegalArgumentException("number is not valid"));
-                                        } else {
-                                            return Observable.just(countryCodePicker.getFullNumberWithPlus());
-                                        }
-                                    }
-                                )
-                            .subscribe(this::sendVerifyPhoneNumber, this::showErrorDialog);
+        sendNumberBtn.setOnClickListener(view1 -> {
+
+            if (!countryCodePicker.isValidFullNumber()) {
+                showErrorDialog();
+            }else {
+                sendVerifyPhoneNumber(countryCodePicker.getFullNumberWithPlus());
+            }
+        });
 
 
         return view;
     }
 
-    private void showErrorDialog(Throwable e) {
-        new OoOAlertDialog.Builder(getActivity())
-                .setTitle("Error")
-                .setMessage(e.getMessage())
-                .setImage(R.drawable.error_triangle)
-                .setAnimation(Animation.POP)
-                .setPositiveButton("OK", null)
+    private void showErrorDialog() {
+
+        new TTFancyGifDialog.Builder(getActivity())
+                .setMessage("Invalid number")
+                .setPositiveBtnText("Ok")
+                .setPositiveBtnBackground("#22b573")
+                .setGifResource(R.drawable.error)      //pass your gif, png or jpg
+                .isCancellable(false)
                 .build();
+
+
     }
 
     private void sendVerifyPhoneNumber(String phoneNumber) {
@@ -91,29 +87,13 @@ public class PhoneNumberInputFragment extends Fragment {
                 getActivity(),      // Activity (for callback binding)
                 mCallbacks);        // OnVerificationStateChangedCallbacks
         //move to next fragment
-        ((PhoneNumberInputActivity)getActivity()).setViewPager(1);
-
+        PhoneCodeVerificationFragment phoneCodeVerificationFragment = new PhoneCodeVerificationFragment();
+        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.phone_verification_container, phoneCodeVerificationFragment,INPUT_CODE_FRAGMENT_TAG);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
     }
-
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if(disposable!=null){
-            disposable.dispose();
-        }
-    }
-
-    public static PhoneNumberInputFragment newInstance(PhoneVerificationCallBack phoneVerificationCallBack) {
-
-        Bundle args = new Bundle();
-        args.putSerializable(CALLBACK_KEY,phoneVerificationCallBack);
-
-        PhoneNumberInputFragment fragment = new PhoneNumberInputFragment();
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-
 
 }
+
+
