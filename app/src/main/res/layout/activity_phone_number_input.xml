@@ -8,6 +8,7 @@
 
 
     <androidx.appcompat.widget.Toolbar
+        android:layoutDirection="ltr"
         app:contentInsetStart="0dp"
         android:id="@+id/activity_phone_number_toolbar"
         android:layout_width="match_parent"

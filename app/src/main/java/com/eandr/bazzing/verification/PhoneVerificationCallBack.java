@@ -36,7 +36,10 @@ implements Serializable {
     @Override
     public void onVerificationCompleted(PhoneAuthCredential phoneAuthCredential) {
         String smsCode = phoneAuthCredential.getSmsCode();
-        phoneNumberInputActivity.showSmsCode(smsCode);
+        Log.i("SHOWCODE","onVerificationCompleted got sms code" + smsCode);
+        if(smsCode != null) {
+            phoneNumberInputActivity.showSmsCode(smsCode);
+        }
         showVerifyingDialog();
         signInWithPhoneAuthCredential(phoneAuthCredential);
 
@@ -50,7 +53,10 @@ implements Serializable {
 
     @Override
     public void onCodeSent(String verificationCode, PhoneAuthProvider.ForceResendingToken token) {
+        Log.i("SHOWCODE","onCodeSent got verificationCode" + verificationCode);
         this.phoneVeficationId = verificationCode;
+        //phoneNumberInputActivity.showSmsCode(verificationCode);
+
     }
 
     public void signInWithUserCodeInput(String userCodeInput){

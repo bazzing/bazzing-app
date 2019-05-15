@@ -38,7 +38,7 @@ public class PhoneNumberInputActivity extends AppCompatActivity {
     public void showSmsCode(String smsCode){
 
         PhoneCodeVerificationFragment phoneCodeVerificationFragment = (PhoneCodeVerificationFragment)getSupportFragmentManager().findFragmentByTag(INPUT_CODE_FRAGMENT_TAG);
-        if (phoneCodeVerificationFragment != null && phoneCodeVerificationFragment.isVisible()) {
+        if (phoneCodeVerificationFragment != null ) {
             // add your code here
             phoneCodeVerificationFragment.showSmsCode(smsCode);
         }
