@@ -55,9 +55,7 @@ public class PhoneCodeVerificationFragment extends Fragment implements View.OnCl
         if(verificationCode.isEmpty()){
             Toast.makeText(getActivity(),"Enter verification code",Toast.LENGTH_SHORT).show();
         }else {
-
-           mCallbacks.showVerifyingDialog();
-           mCallbacks.signInWithUserCodeInput(verificationCode);
+            mCallbacks.signInWithUserCodeInput(verificationCode);
         }
     }
 }

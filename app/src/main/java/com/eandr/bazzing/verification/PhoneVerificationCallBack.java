@@ -4,8 +4,8 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.bestsoft32.tt_fancy_gif_dialog_lib.TTFancyGifDialog;
-import com.eandr.bazzing.MainActivity;
 import com.eandr.bazzing.R;
+import com.eandr.bazzing.profile.UserProfile;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
@@ -36,7 +36,6 @@ implements Serializable {
     @Override
     public void onVerificationCompleted(PhoneAuthCredential phoneAuthCredential) {
         String smsCode = phoneAuthCredential.getSmsCode();
-        Log.i("SHOWCODE","onVerificationCompleted got sms code" + smsCode);
         if(smsCode != null) {
             phoneNumberInputActivity.showSmsCode(smsCode);
         }
@@ -53,9 +52,7 @@ implements Serializable {
 
     @Override
     public void onCodeSent(String verificationCode, PhoneAuthProvider.ForceResendingToken token) {
-        Log.i("SHOWCODE","onCodeSent got verificationCode" + verificationCode);
         this.phoneVeficationId = verificationCode;
-        //phoneNumberInputActivity.showSmsCode(verificationCode);
 
     }
 
@@ -73,12 +70,13 @@ implements Serializable {
                     if (task.isSuccessful()) {
                        disposable =  Observable.just("one").delay(2,TimeUnit.SECONDS)
                                   .observeOn(AndroidSchedulers.mainThread())
-                                  .subscribe(l->{ dialogVerifying.hideDialog();gotToMainActivity();});
+                                  .subscribe(l->{ dialogVerifying.hideDialog();
+                                      gotToUserProfileActivity();});
 
                         // Sign in success, update UI with the signed-in user's information
                         //dialogVerifying.hideDialog();
                         //go to main activity
-                        //gotToMainActivity();
+                        //gotToUserProfileActivity();
                     } else {
                         dialogVerifying.hideDialog();
                         // Sign in failed, display a message and update the UI
@@ -98,8 +96,8 @@ implements Serializable {
                 });
     }
 
-    private void gotToMainActivity() {
-        Intent intent = new Intent(phoneNumberInputActivity, MainActivity.class);
+    private void gotToUserProfileActivity() {
+        Intent intent = new Intent(phoneNumberInputActivity, UserProfile.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         phoneNumberInputActivity.startActivity(intent);
         disposable.dispose();
